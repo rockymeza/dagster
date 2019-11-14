@@ -4,7 +4,7 @@ pushd $ROOT/.buildkite/images/docker/
 set -eux
 
 # Version of the buildkite image. Update this when you make significant changes to the image.
-IMAGE_VERSION="v5"
+IMAGE_VERSION="v5.1"
 
 
 if [ "$#" -ne 2 ] && [ "$#" -ne 3 ]; then
