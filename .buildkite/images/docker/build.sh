@@ -4,12 +4,12 @@ pushd $ROOT/.buildkite/images/docker/
 set -eux
 
 # Version of the buildkite image. Update this when you make significant changes to the image.
-IMAGE_VERSION="v5"
+IMAGE_VERSION="v5.1"
 
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 2 ] && [ "$#" -ne 3 ]; then
     echo "Error: Must specify a Python version and image type.\n" 1>&2
-    echo "Usage: ./build.sh 3.7.4 integration" 1>&2
+    echo "Usage: ./build.sh 3.7.4 integration [linux|windows]" 1>&2
     exit 1
 fi
 
@@ -21,6 +21,7 @@ PYTHON_MAJOR_VERSION="${PYTHON_VERSION:0:1}"
 PYTHON_MAJMIN=`echo "${PYTHON_VERSION:0:3}" | sed 's/\.//'`
 
 IMAGE_TYPE=$2
+OS_TYPE=${3:-linux}
 
 function cleanup {
     rm -rf scala_modules
@@ -28,6 +29,8 @@ function cleanup {
 
 # ensure cleanup happens on error or normal exit
 trap cleanup EXIT
+
+pushd $OS_TYPE
 
 rsync -av --exclude='*target*' --exclude='*.idea*' --exclude='*.class' $ROOT/scala_modules .
 
@@ -38,12 +41,12 @@ if [ $IMAGE_TYPE == "integration" ]; then
         --build-arg PYTHON_VERSION=$PYTHON_VERSION \
         --build-arg PYTHON_MAJOR_VERSION=$PYTHON_MAJOR_VERSION \
         --target dagster-integration-image \
-        -t "dagster/buildkite-integration:py${PYTHON_VERSION}-${IMAGE_VERSION}"
+        -t "dagster/buildkite-integration-${OS_TYPE}:py${PYTHON_VERSION}-${IMAGE_VERSION}"
 else
     # Build the public image
     docker build . \
         --no-cache \
         --build-arg PYTHON_VERSION=$PYTHON_VERSION \
         --target dagster-public-image \
-        -t "dagster/dagster-py${PYTHON_MAJMIN}"
+        -t "dagster/dagster-${OS_TYPE}-py${PYTHON_MAJMIN}"
 fi

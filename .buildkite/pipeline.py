@@ -112,8 +112,10 @@ def python_modules_tox_tests(directory, queue=BuildkiteQueue.MEDIUM):
         )
         if queue == BuildkiteQueue.WINDOWS:
             name = "{label} tests ({ver}/win)".format(label=label, ver=TOX_MAP[version])
+            platform = 'windows'
         else:
             name = "{label} tests ({ver})".format(label=label, ver=TOX_MAP[version])
+            platform = None
 
         tests.append(
             StepBuilder(name)
@@ -126,7 +128,9 @@ def python_modules_tox_tests(directory, queue=BuildkiteQueue.MEDIUM):
                 "buildkite-agent artifact upload {file}".format(file=coverage),
             )
             .on_integration_image(
-                version, ['AWS_DEFAULT_REGION', 'TWILIO_TEST_ACCOUNT_SID', 'TWILIO_TEST_AUTH_TOKEN']
+                version,
+                ['AWS_DEFAULT_REGION', 'TWILIO_TEST_ACCOUNT_SID', 'TWILIO_TEST_AUTH_TOKEN'],
+                platform,
             )
             .on_queue(queue)
             .build()
