@@ -27,8 +27,8 @@ class BuildkiteQueue(Enum):
     '''
 
     DOCKER = "docker-p"
-    MICRO = "micro-p"
     MEDIUM = "medium-p"
+    WINDOWS = "windows-p"
     C4_2XLARGE = "c4-2xlarge-p"
 
     @classmethod
